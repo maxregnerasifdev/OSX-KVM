@@ -1,0 +1,55 @@
+name: macOS and FreeBSD Merge
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  merge-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install required packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install qemu uml-utilities virt-manager git wget libguestfs-tools p7zip-full make dmg2img tesseract-ocr genisoimage vim net-tools screen -y
+
+    - name: Clone repository
+      run: git clone --depth 1 --recursive https://github.com/kholia/OSX-KVM.git
+
+    - name: Make required tweaks for KVM
+      run: |
+        sudo modprobe kvm
+        echo 1 | sudo tee /sys/module/kvm/parameters/ignore_msrs
+        sudo cp kvm.conf /etc/modprobe.d/kvm.conf  # for intel boxes only
+        sudo cp kvm_amd.conf /etc/modprobe.d/kvm.conf  # for amd boxes only
+        sudo usermod -aG kvm $(whoami)
+        sudo usermod -aG libvirt $(whoami)
+        sudo usermod -aG input $(whoami)
+
+    - name: Fetch macOS installer
+      run: |
+        cd OSX-KVM
+        ./fetch-macOS-v2.py
+
+    - name: Convert BaseSystem.dmg to BaseSystem.img
+      run: dmg2img -i BaseSystem.dmg BaseSystem.img
+
+    - name: Create virtual HDD image for macOS
+      run: qemu-img create -f qcow2 mac_hdd_ng.img 256G
+
+    - name: Install macOS
+      run: ./OpenCore-Boot.sh
+
+    - name: Merge macOS with FreeBSD
+      run: qemu-img convert -f qcow2 -O qcow2 mac_hdd_ng.img freebsd.qcow2
+
+    - name: Upload merged image
+      uses: actions/upload-artifact@v2
+      with:
+        name: merged-image
+        path: freebsd.qcow2
