@@ -44,7 +44,8 @@ jobs:
 
 
     - name: Resize merged image
-      run: qemu-img resize freebsd.qcow2 2G
+      run: qemu-img resize --shrink freebsd.qcow2 2G
+
 
     - name: Upload resized image
       uses: actions/upload-artifact@v2
