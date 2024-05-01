@@ -35,8 +35,11 @@ jobs:
         sudo usermod -aG libvirt $(whoami)
         sudo usermod -aG input $(whoami)
 
+    - name: Convert BaseSystem.dmg to BaseSystem.img
+      run: dmg2img -i OSX-KVM/BaseSystem.dmg -o OSX-KVM/BaseSystem.img
+
     - name: Create virtual HDD image for macOS
-      run: qemu-img create -f qcow2 mac_hdd_ng.img 256G
+      run: qemu-img create -f qcow2 mac_hdd_ng.img 56G
 
     - name: Install macOS
       run: ./OpenCore-Boot.sh OSX-KVM/BaseSystem.img
