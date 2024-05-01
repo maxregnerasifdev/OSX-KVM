@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   merge-and-upload:
@@ -53,4 +54,3 @@ jobs:
       with:
         name: merged-image
         path: freebsd.qcow2
-
