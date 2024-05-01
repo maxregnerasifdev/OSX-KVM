@@ -35,9 +35,6 @@ jobs:
         sudo usermod -aG libvirt $(whoami)
         sudo usermod -aG input $(whoami)
 
-    - name: Convert BaseSystem.dmg to BaseSystem.img
-      run: dmg2img -i OSX-KVM/BaseSystem.dmg -o OSX-KVM/BaseSystem.img
-
     - name: Create virtual HDD image for macOS
       run: qemu-img create -f qcow2 mac_hdd_ng.img 256G
 
@@ -47,8 +44,11 @@ jobs:
     - name: Merge macOS with FreeBSD
       run: qemu-img convert -f qcow2 -O qcow2 mac_hdd_ng.img freebsd.qcow2
 
-    - name: Upload merged image
+    - name: Resize merged image
+      run: qemu-img resize freebsd.qcow2 21G
+
+    - name: Upload resized image
       uses: actions/upload-artifact@v2
       with:
-        name: merged-image
+        name: resized-image
         path: freebsd.qcow2
