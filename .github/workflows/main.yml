@@ -42,8 +42,7 @@ jobs:
       run: qemu-img create -f qcow2 mac_hdd_ng.img 56G
 
     - name: Install macOS
-      run: ./OpenCore-Boot.sh OSX-KVM/BaseSystem.img
-
+      run: qemu-system-x86_64 -drive id=InstallMedia,if=none,file=./BaseSystem.img,format=raw
     - name: Merge macOS with FreeBSD
       run: qemu-img convert -f qcow2 -O qcow2 mac_hdd_ng.img freebsd.qcow2
 
