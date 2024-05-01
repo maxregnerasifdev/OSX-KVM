@@ -42,13 +42,15 @@ jobs:
       run: | 
        qemu-img convert -f raw -O qcow2 OSX-KVM/BaseSystem.img freebsd.qcow2
 
-
     - name: Resize merged image
-      run: qemu-img resize --shrink freebsd.qcow2 2G
+      run: |
+        qemu-img resize --shrink freebsd.qcow2 880M
 
+    - name: Compress the resized image
+      run: 7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on freebsd_compressed.7z freebsd.qcow2
 
-    - name: Upload resized image
+    - name: Upload compressed image
       uses: actions/upload-artifact@v2
       with:
-        name: resized-image
-        path: freebsd.qcow2
+        name: compressed-image
+        path: freebsd_compressed.7z
