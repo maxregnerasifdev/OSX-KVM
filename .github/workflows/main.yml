@@ -20,7 +20,10 @@ jobs:
         sudo apt-get install qemu uml-utilities virt-manager git wget libguestfs-tools p7zip-full make dmg2img tesseract-ocr genisoimage vim net-tools screen -y
 
     - name: Clone repository
-      run: git clone --depth 1 --recursive https://github.com/kholia/OSX-KVM.git
+      run: |
+        git clone --depth 1 --recursive https://github.com/kholia/OSX-KVM.git
+        cd OSX-KVM
+        ./fetch-macOS-v2.py Sonoma
 
     - name: Make required tweaks for KVM
       run: |
@@ -32,16 +35,11 @@ jobs:
         sudo usermod -aG libvirt $(whoami)
         sudo usermod -aG input $(whoami)
 
-    - name: Fetch macOS installer
-      run: |
-        cd OSX-KVM
-        ./fetch-macOS-v2.py
-
     - name: Convert BaseSystem.dmg to BaseSystem.img
       run: dmg2img -i BaseSystem.dmg BaseSystem.img
 
     - name: Create virtual HDD image for macOS
-      run: qemu-img create -f qcow2 mac_hdd_ng.img 256G
+      run: qemu-img create -f qcow2 mac_hdd_ng.img 32G
 
     - name: Install macOS
       run: ./OpenCore-Boot.sh
