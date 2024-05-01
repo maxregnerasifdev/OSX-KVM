@@ -39,8 +39,9 @@ jobs:
       run: dmg2img -i OSX-KVM/BaseSystem.dmg -o OSX-KVM/BaseSystem.img
 
     - name: Merge macOS with FreeBSD
-      run: |
-        qemu-img convert -f qcow2 -O qcow2 OSX-KVM/BaseSystem.img freebsd.qcow2
+      run: | 
+       qemu-img convert -f raw -O qcow2 OSX-KVM/BaseSystem.img freebsd.qcow2
+
 
     - name: Resize merged image
       run: qemu-img resize freebsd.qcow2 2G
