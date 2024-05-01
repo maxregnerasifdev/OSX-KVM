@@ -53,3 +53,4 @@ jobs:
       with:
         name: merged-image
         path: freebsd.qcow2
+
