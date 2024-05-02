@@ -17,7 +17,7 @@ jobs:
     - name: Install required packages
       run: |
         sudo apt-get update
-        sudo apt-get install qemu qemu-utils p7zip-full xz-utils -y
+        sudo apt-get install qemu qemu-utils p7zip-full xz-utils dmg2img -y
 
     - name: Clone repository
       run: |
