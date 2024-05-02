@@ -32,7 +32,6 @@ jobs:
         sudo cp kvm.conf /etc/modprobe.d/kvm.conf  # for Intel boxes only
         sudo cp kvm_amd.conf /etc/modprobe.d/kvm.conf  # for AMD boxes only
         sudo usermod -aG kvm $(whoami)
-        sudo usermod -aG libvirt $(whoami)
         sudo usermod -aG input $(whoami)
 
     - name: Convert BaseSystem.dmg to BaseSystem.img
