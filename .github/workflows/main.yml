@@ -44,7 +44,7 @@ jobs:
       run: wget https://download.freebsd.org/ftp/releases/VM-IMAGES/14.0-RELEASE/amd64/Latest/FreeBSD-14.0-RELEASE-amd64.qcow2.xz && unxz FreeBSD-14.0-RELEASE-amd64.qcow2.xz
 
     - name: Merge macOS with FreeBSD
-      run: qemu-img create -f qcow2 -F qcow2 -b BaseSystem.qcow2 merged_macos_freebsd.qcow2
+      run: qemu-img rebase -b BaseSystem.qcow2 FreeBSD-14.0-RELEASE-amd64.qcow2 merged_macos_freebsd.qcow2
 
     - name: Resize merged image
       run: qemu-img resize --shrink merged_macos_freebsd.qcow2 880M
