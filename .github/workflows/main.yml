@@ -17,7 +17,7 @@ jobs:
     - name: Install required packages
       run: |
         sudo apt-get update
-        sudo apt-get install qemu uml-utilities virt-manager git wget libguestfs-tools p7zip-full make dmg2img tesseract-ocr genisoimage vim net-tools screen -y
+        sudo apt-get install qemu qemu-utils p7zip-full xz-utils -y
 
     - name: Clone repository
       run: |
@@ -29,8 +29,8 @@ jobs:
       run: |
         sudo modprobe kvm
         echo 1 | sudo tee /sys/module/kvm/parameters/ignore_msrs
-        sudo cp kvm.conf /etc/modprobe.d/kvm.conf  # for intel boxes only
-        sudo cp kvm_amd.conf /etc/modprobe.d/kvm.conf  # for amd boxes only
+        sudo cp kvm.conf /etc/modprobe.d/kvm.conf  # for Intel boxes only
+        sudo cp kvm_amd.conf /etc/modprobe.d/kvm.conf  # for AMD boxes only
         sudo usermod -aG kvm $(whoami)
         sudo usermod -aG libvirt $(whoami)
         sudo usermod -aG input $(whoami)
@@ -38,19 +38,23 @@ jobs:
     - name: Convert BaseSystem.dmg to BaseSystem.img
       run: dmg2img -i OSX-KVM/BaseSystem.dmg -o OSX-KVM/BaseSystem.img
 
+    - name: Convert BaseSystem.img to qcow2 format
+      run: qemu-img convert -f raw -O qcow2 OSX-KVM/BaseSystem.img BaseSystem.qcow2
+
+    - name: Download FreeBSD image
+      run: wget https://download.freebsd.org/ftp/releases/VM-IMAGES/14.0-RELEASE/amd64/Latest/FreeBSD-14.0-RELEASE-amd64.qcow2.xz && unxz FreeBSD-14.0-RELEASE-amd64.qcow2.xz
+
     - name: Merge macOS with FreeBSD
-      run: | 
-       qemu-img convert -f raw -O qcow2 OSX-KVM/BaseSystem.img freebsd.qcow2
+      run: qemu-img create -f qcow2 -b BaseSystem.qcow2 merged_macos_freebsd.qcow2
 
     - name: Resize merged image
-      run: |
-        qemu-img resize --shrink freebsd.qcow2 880M
+      run: qemu-img resize --shrink merged_macos_freebsd.qcow2 880M
 
     - name: Compress the resized image
-      run: 7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on freebsd_compressed.7z freebsd.qcow2
+      run: 7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on merged_macos_freebsd_compressed.7z merged_macos_freebsd.qcow2
 
     - name: Upload compressed image
       uses: actions/upload-artifact@v2
       with:
         name: compressed-image
-        path: freebsd_compressed.7z
+        path: merged_macos_freebsd_compressed.7z
